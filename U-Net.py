@@ -122,7 +122,6 @@ class uNet_Dataset(Dataset.Dataset):
         label_path = self.names_list[idx].split(',')[1].strip('\n')
         label = Image.open(label_path)
 
-        # print('Open',image_path,'success.')
         # return dict and change data type to tensor
         sample = {'image': torch.from_numpy(image_data).float(), 'label': label}
         sample['label'] = torch.from_numpy(np.array(sample['label']))
