@@ -52,9 +52,9 @@ class upSampling(nn.Module):
 
 
 class uNet(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, in_channels=3, num_classes=3):
         super(uNet, self).__init__()
-        self.enCode1 = convBlock(in_channels=3, out_channels=64)
+        self.enCode1 = convBlock(in_channels=in_channels, out_channels=64)
         self.enCode2 = convBlock(in_channels=64, out_channels=128)
         self.enCode3 = convBlock(in_channels=128, out_channels=256)
         self.enCode4 = convBlock(in_channels=256, out_channels=512)
