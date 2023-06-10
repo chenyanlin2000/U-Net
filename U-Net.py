@@ -1,16 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.utils.data.dataset as Dataset
-from torch.utils.data import DataLoader
-import torchvision.transforms as transforms
-from PIL import Image
-import torchvision.models as models
-import os
-import numpy as np
-import math
-import datetime
-from osgeo import gdal
 
 
 class convBlock(nn.Module):
@@ -94,36 +83,3 @@ class uNet(nn.Module):
 
         out = self.lastLayer(torch.cat((dec4, enc1), dim=1))
         return out
-
-
-class uNet_Dataset(Dataset.Dataset):
-    def __init__(self, csv_dir):
-        self.csv_dir = csv_dir
-        self.names_list = []
-        self.size = 0
-        self.transform = transforms.ToTensor()
-        # read path from csv file
-        if not os.path.isfile(self.csv_dir):
-            print(self.csv_dir + ':txt file does not exist!')
-        file = open(self.csv_dir)
-        for f in file:
-            self.names_list.append(f)
-            self.size += 1
-
-    def __len__(self):
-        return self.size
-
-    def __getitem__(self, idx):
-        # read path and open image
-        image_path = self.names_list[idx].split(',')[0]
-        image = gdal.Open(image_path)
-        image_data = image.ReadAsArray()
-        # read path and open label
-        label_path = self.names_list[idx].split(',')[1].strip('\n')
-        label = Image.open(label_path)
-
-        # return dict and change data type to tensor
-        sample = {'image': torch.from_numpy(image_data).float(), 'label': label}
-        sample['label'] = torch.from_numpy(np.array(sample['label']))
-
-        return sample
