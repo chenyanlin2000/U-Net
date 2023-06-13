@@ -132,7 +132,7 @@ def read_idx_pos_data(idx, image_dataset, label_dataset, w_window_num, band_list
                                           indexes=1)
     else:
         label_window = None
-    return image_window, label_window
+    return image_window, label_window, x_start, y_start
 
 
 def get_test_mean_std(image_dataset, band_list):
@@ -145,3 +145,10 @@ def get_test_mean_std(image_dataset, band_list):
     image_std = np.std(data, axis=(1, 2)).reshape(len(band_list), 1, 1)  # std of every band
 
     return image_mean, image_std
+
+
+# functions for test
+def save_image(filename, data, meta):
+    # function: save an image with meta data
+    with rio.open(filename, 'w', **meta) as dst:
+        dst.write(data)

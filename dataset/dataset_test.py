@@ -6,13 +6,10 @@ import utils
 
 
 class TestDataset(Dataset.Dataset):
-    def __init__(self, image_filename, label_filename, band_list=[1, 2, 3], window_size=(256, 256), stride=128,
+    def __init__(self, image_dataset, label_dataset, band_list=[1, 2, 3], window_size=(256, 256), stride=128,
                  with_label=True):
-        self.image_dataset = rio.open(image_filename)
-        if with_label:
-            self.label_dataset = rio.open(label_filename)
-        else:
-            self.label_dataset = None
+        self.image_dataset = image_dataset
+        self.label_dataset = label_dataset
         self.band_list = band_list
         self.window_size = window_size
         self.stride = stride
@@ -30,12 +27,14 @@ class TestDataset(Dataset.Dataset):
 
     def __getitem__(self, idx):
         # read data. image_window: C H W. label_window: H W
-        image_window, label_window = utils.read_idx_pos_data(idx, self.image_dataset, self.label_dataset,
-                                                             self.w_window_num, self.h_window_num, self.band_list,
-                                                             self.stride, self.with_label)
+        image_window, label_window, x_start, y_start = utils.read_idx_pos_data(idx, self.image_dataset,
+                                                                               self.label_dataset,
+                                                                               self.w_window_num, self.h_window_num,
+                                                                               self.band_list,
+                                                                               self.stride, self.with_label)
+        image_window = (image_window - self.mean) / self.std
         if self.with_label:
             label_window = torch.from_numpy(label_window)
-
         image_window = torch.from_numpy(image_window).float()
 
-        return image_window, label_window
+        return image_window, label_window, x_start, y_start
