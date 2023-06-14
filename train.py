@@ -12,7 +12,7 @@ def train(cfg):
     device = cfg.TRAIN.DEVICE
 
     # 1.load data
-    data = TrainDataset(cfg.DATASET.TRAIN_IMAGE_FOLDER, cfg.DATASET.TRAIN_LABEL_FOLDER, cfg.DATASET.BAND_LIST,
+    data = TrainDataset(cfg.DATASET.TRAIN_IMAGE_DIR, cfg.DATASET.TRAIN_LABEL_DIR, cfg.DATASET.BAND_LIST,
                         cfg.DATASET.WINDOE_SIZE, cfg.DATASET.AUGMENTATION)
     rs_dataloader = DataLoader(data, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=cfg.TRAIN.SHUFFLE)
 
@@ -46,7 +46,7 @@ def train(cfg):
                     "epoch is " + str(e) + ", " + str(idx + 1) + " batch, loss is " + str(loss.item()) + "\n")
 
         if e == 1 or e % cfg.TRAIN.MODEL_SAVE_ITER == 0:  # save model every iter epoch
-            torch.save(my_net, cfg.TRAIN.MODEL_SAVE_PATH + "//model" + str(e) + ".pkl")
+            torch.save(my_net, cfg.TRAIN.MODEL_SAVE_DIR + "//model" + str(e) + ".pkl")
 
     return
 

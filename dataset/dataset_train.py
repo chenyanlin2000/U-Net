@@ -9,8 +9,8 @@ import utils
 class TrainDataset(Dataset.Dataset):
     def __init__(self, image_folder, label_folder, size=1000, band_list=[1, 2, 3], window_size=(256, 256),
                  augmentation=True):
-        self.image_list = utils.get_filename_list(image_folder)
-        self.label_list = utils.get_filename_list(label_folder)
+        self.image_list = utils.get_file_list(image_folder)
+        self.label_list = utils.get_file_list(label_folder)
         self.band_list = band_list
         self.window_size = window_size
         self.augmentation = augmentation
