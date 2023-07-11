@@ -1,15 +1,15 @@
 import os.path
-
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import rasterio as rio
+from tqdm import tqdm
 # import my libs
 from dataset.dataset_test import TestDataset
 from model.U_Net import uNet
 from config import cfg
-from .dataset import utils
+from dataset import utils
 
 
 def test(cfg):
@@ -28,7 +28,7 @@ def test(cfg):
         my_net.to(device)
 
         # start to test
-        for f in range(0, len(image_list)):
+        for f in tqdm(list(range(0, len(image_list)))):  # go through every test images
             image_dataset = rio.open(image_list[f])
             meta = image_dataset.meta.copy()
             pre_array = torch.zeros((cfg.DATASET.CLASS_NUM, image_dataset.height, image_dataset.width))
@@ -57,12 +57,15 @@ def test(cfg):
 
             _, pre_array = torch.max(pre_array, 0)  # return pre_array now is a tensor with 2 dim: H W
             del _
+
+            # write results
             pre_array = torch.unsqueeze(pre_array.to(torch.uint8), 0)  # add a dim: H W to C H W
             pre_array = pre_array.numpy()
             meta.update(
                 {
                     'count': 1,
                     'compress': 'lzw',
+                    'driver': 'GTiff'
                 }
             )
             utils.save_image(cfg.TEST.PREDICT_SAVE_DIR, model_list[m], image_list[f], pre_array, meta)
@@ -70,7 +73,8 @@ def test(cfg):
             # if test data is with label
             # calculate and output confusion matrix
             if cfg.DATASET.WITH_LABEL:
-                utils.cal_evaluation_index(label_data, pre_array[0], cfg.DATASET.LABELS)
+                utils.cal_evaluation_index(label_data, pre_array[0], cfg.DATASET.LABELS,
+                                           cfg.TEST.CONFUSION_MATRIX_SAVE_DIR, model_list[m], image_list[f])
 
             del pre_array
 

@@ -11,7 +11,7 @@ def get_file_list(file_dir):
     # function: get every file name in the directory. Name and path
     # if you only want to get file name, please delete: file_path = os.path.join(file_dir, file_name)
     # parameter: fileFolder_path: file folder path
-    # return: filename list. ex:['git-cheat-sheet.pdf', 'Git.xmind']
+    # return: filename list.
     if not os.path.isdir(file_dir):
         return None
     file_list = []
@@ -144,6 +144,28 @@ def get_test_mean_std(image_dataset, band_list):
 
 
 # functions for test.py
+def get_no_extension_filename(filepath):
+    return os.path.splitext(os.path.basename(filepath))[0]
+
+
+def get_path(directory, model_name, image_name, extension):
+    # function: get a file path to save predict image or confusion matrix
+    # directory: directory
+    # model_name: name with extension (absolute path)
+    # image_name: as above
+    # extension: file extension. ".tif" or ".txt"
+
+    # set path
+    model_name = get_no_extension_filename(model_name)
+    file_name = get_no_extension_filename(image_name) + extension
+    path = os.path.join(directory, model_name)
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    path = os.path.join(path, file_name)
+    return path
+
+
 def save_image(pre_dir, model_name, image_name, data, meta):
     # function: save an image with meta data
     # predict save directory
@@ -151,19 +173,13 @@ def save_image(pre_dir, model_name, image_name, data, meta):
     # image_name: as above
     # data: pre array
 
-    # set path
-    model_name = get_no_extension_filename(model_name)
-    image_name = get_no_extension_filename(image_name) + ".tif"
-    path = os.path.join(pre_dir, model_name)
-    if not os.path.exists(path):
-        os.makedirs(path)
-    path = os.path.join(path, image_name)
-
+    # get path
+    path = get_path(pre_dir, model_name, image_name, ".tif")
     with rio.open(path, 'w', **meta) as dst:
         dst.write(data)
 
 
-def cal_evaluation_index(lab, pre, LABELS, filepath):
+def cal_evaluation_index(lab, pre, LABELS, con_dir, model_name, image_name):
     # function: calculate confusion matrix, p, r, F-score, iou
     # sklearn.metrics.confusion_matrix: input must be 1 dim numpy array.
     # lab、pre: 2 dim numpy array.
@@ -184,7 +200,8 @@ def cal_evaluation_index(lab, pre, LABELS, filepath):
         r[i] = cm[i][i] / np.sum(cm[i, :])
         f_score[i] = 2 * p[i] * r[i] / (p[i] + r[i])
 
-    write_results(filepath, cm, p, r, f_score)
+    path = get_path(con_dir, model_name, image_name, ".txt")
+    write_results(path, cm, p, r, f_score)
     return cm, p, r, f_score
 
 
@@ -210,7 +227,3 @@ def write_results(filepath, cm, p, r, f_score):
     print(r)
     print('\nF-score:')
     print(f_score)
-
-
-def get_no_extension_filename(filepath):
-    return os.path.splitext(os.path.basename(filepath))[0]

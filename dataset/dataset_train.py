@@ -8,7 +8,7 @@ import utils
 
 class TrainDataset(Dataset.Dataset):
     def __init__(self, image_folder, label_folder, size=1000, band_list=[1, 2, 3], window_size=(256, 256),
-                 augmentation=True):
+                 augmentation=False):
         self.image_list = utils.get_file_list(image_folder)
         self.label_list = utils.get_file_list(label_folder)
         self.band_list = band_list
@@ -26,7 +26,7 @@ class TrainDataset(Dataset.Dataset):
 
     def __getitem__(self, idx):
         # Pick and open a random image
-        random_idx = random.randint(0, self.size - 1)
+        random_idx = random.randint(0, len(self.image_list) - 1)
         image_dataset = rio.open(self.image_list[random_idx])
         label_dataset = rio.open(self.label_list[random_idx])
 
@@ -40,6 +40,9 @@ class TrainDataset(Dataset.Dataset):
         if self.augmentation:  # data augmentation
             image_window, label_window = utils.data_augmentation(image_window, label_window)
 
-        # image_window: N C H W
-        # label_window: N H W
-        return torch.from_numpy(image_window).float(), torch.from_numpy(label_window)
+        # with no augmentation:
+        # image_window: C H W
+        # label_window: H W
+        image_window = torch.from_numpy(image_window).float()
+        label_window = torch.from_numpy(label_window)
+        return image_window, label_window

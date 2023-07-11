@@ -15,7 +15,7 @@ class TestDataset(Dataset.Dataset):
         self.size = self.h_window_num * self.w_window_num
 
         # calculate mean and std
-        # dim: band_num 1 1
+        # dim: (band_num, 1, 1)
         self.mean, self.std = utils.get_test_mean_std(self.image_dataset, self.band_list)
 
     def __len__(self):
@@ -26,7 +26,7 @@ class TestDataset(Dataset.Dataset):
         # read data. image_window: C H W.
         image_window, x_start, y_start = utils.read_idx_pos_data(idx, self.image_dataset, self.w_window_num,
                                                                  self.band_list, self.stride)
-        image_window = (image_window - self.mean) / self.std
+        image_window = (image_window - self.mean) / self.std  # normalization
         image_window = torch.from_numpy(image_window).float()  # numpy to tensor
 
         return image_window, x_start, y_start

@@ -12,9 +12,9 @@ def train(cfg):
     device = cfg.TRAIN.DEVICE
 
     # 1.load data
-    data = TrainDataset(cfg.DATASET.TRAIN_IMAGE_DIR, cfg.DATASET.TRAIN_LABEL_DIR, cfg.DATASET.BAND_LIST,
-                        cfg.DATASET.WINDOE_SIZE, cfg.DATASET.AUGMENTATION)
-    rs_dataloader = DataLoader(data, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=cfg.TRAIN.SHUFFLE)
+    data = TrainDataset(cfg.DATASET.TRAIN_IMAGE_DIR, cfg.DATASET.TRAIN_LABEL_DIR, cfg.DATASET.TRAIN_DATASET_SIZE,
+                        cfg.DATASET.BAND_LIST, cfg.DATASET.WINDOE_SIZE, cfg.DATASET.AUGMENTATION)
+    rs_dataloader = DataLoader(data, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=False)
 
     # 2.define net model
     my_net = uNet(cfg.TRAIN.INPUT_CHANNEL, cfg.DATASET.CLASS_NUM).to(device)
